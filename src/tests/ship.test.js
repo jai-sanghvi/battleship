@@ -1,7 +1,9 @@
 import {beforeEach, describe, expect, test} from '@jest/globals'
 
 import Ship from "../modules/ship";
+
 let ship;
+
 beforeEach(() => {
   ship = new Ship(3);
 })
@@ -25,7 +27,6 @@ describe('hit()', () => {
     expect(ship.hits).toBe(3);
     ship.hit();
     expect(ship.hits).toBe(3);
-    ship.hit();
   })
 })
 

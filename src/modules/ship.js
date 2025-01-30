@@ -1,11 +1,9 @@
 export default class Ship {
   #hits = 0;
   #length;
-  #direction;
 
-  constructor(length, direction) {
+  constructor(length) {
     this.#length = length;
-    this.#direction = direction;
   }
 
   get hits() {
@@ -14,10 +12,6 @@ export default class Ship {
 
   get length() {
     return this.#length;
-  }
-
-  get direction() {
-    return this.#direction;
   }
 
   hit() {
