@@ -80,3 +80,12 @@ describe('allSunk()', () => {
     expect(gameboard.allSunk()).toBe(false);
   })
 })
+
+describe('placeShipsRandomly()', () => {
+  test('places given ships on the board randomly', () => {
+    const ships = [new Ship(5), new Ship(4), new Ship(3), new Ship(3), new Ship(2)];
+    expect(gameboard.ships.length).toBe(0);
+    gameboard.placeShipsRandomly(ships);
+    expect(gameboard.ships.length).toBe(ships.length);
+  })
+})
