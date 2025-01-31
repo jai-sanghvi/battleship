@@ -11,6 +11,10 @@ export default class Gameboard {
     }
   }
 
+  get size() {
+    return this.#size;
+  }
+
   placeShip(ship, direction, target) {
     const [x,y] = target;
 
