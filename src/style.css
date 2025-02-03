@@ -1,0 +1,34 @@
+main, #player1, #player2 {
+  display: grid;
+}
+
+main {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20%;
+}
+
+#player1, #player2 {
+  background-color: aliceblue;
+  aspect-ratio: 1 / 1;
+  gap: 10px;
+}
+
+.cell {
+  background-color: antiquewhite;
+}
+
+#enemy-board {
+  position: relative;
+}
+
+#game-config {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(5px);
+}
