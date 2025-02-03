@@ -20,7 +20,7 @@ function renderBoard(player, boardElement, type) {
         cellElement.textContent = "M";
       } else if (cell && cell === 'hit') {
         cellElement.textContent = "H";
-        cellElement.style.backgoundColor = 'yellow';
+        cellElement.style.backgroundColor = 'yellow';
       }
 
       if (type === 'private' && (cell && typeof cell.hit === 'function')) {
