@@ -18,17 +18,112 @@ export default class Gameboard {
   placeShip(ship, direction, target) {
     const [x,y] = target;
 
+    const cellsOccupied = () => {
+      const arr = [];
+
+      if (direction === 'horizontal') {
+        for (let i = 0; i < ship.length; i++) {
+          arr.push( [x, (y + i)] );
+        }
+      } else if (direction === 'vertical') {
+        for (let i = 0; i < ship.length; i++) {
+          arr.push( [(x + i), y] );
+        }
+      }
+
+      return arr;
+    }
+
+    if ( this.#isOutOfBoard( cellsOccupied() ) ) {
+      return 'fail';
+    } else if ( this.#isOverlapping( cellsOccupied() ) ) {
+      return 'fail';
+    } else if ( this.#isAdjacent( cellsOccupied(), direction ) ) {
+      return 'fail';
+    }
+
     this.ships.push(ship);
 
-    if (direction === 'horizontal') {
-      for (let i = 0; i < ship.length; i++) {
-        this.board[x][y + i] = ship;
-      }
-    } else if (direction === 'vertical') {
-      for (let i = 0; i < ship.length; i++) {
-        this.board[x + i][y] = ship;
-      }
+    for (let cell of cellsOccupied()) {
+      const [x,y] = cell;
+      this.board[x][y] = ship;
     }
+
+    return 'success';
+  }
+
+  #isOutOfBoard(cellsOccupied) {
+    return cellsOccupied.some((cell) => {
+      return (
+        (cell[0] < 0 || cell[0] > (this.#size - 1))
+        || (cell[1] < 0 || cell[1] > (this.#size - 1))
+      )
+    })
+  }
+
+  #isOverlapping(cellsOccupied) {
+    for (let cell of cellsOccupied) {
+      const [x,y] = cell;
+      if (this.board[x][y]) return true;
+    }
+
+    return false;
+  }
+
+  #isAdjacent(cellsOccupied, direction) {
+    const adjacentCells = () => {
+      const arr = [];
+
+      if (direction === 'horizontal') {
+        for (let cell of cellsOccupied) {
+          const [x,y] = cell;
+          arr.push([x - 1, y]);
+          arr.push([x + 1, y]);
+
+          if (cellsOccupied.indexOf(cell) === 0) {
+            arr.push([x, y - 1]);
+            arr.push([x - 1, y - 1]);
+            arr.push([x + 1, y - 1]);
+          } else if (cellsOccupied.indexOf(cell) === (cellsOccupied.length - 1)) {
+            arr.push([x, y + 1]);
+            arr.push([x - 1, y + 1]);
+            arr.push([x + 1, y + 1]);
+          }
+        }
+      } else {
+        for (let cell of cellsOccupied) {
+          const [x,y] = cell;
+          arr.push([x, y - 1]);
+          arr.push([x, y + 1]);
+
+          if (cellsOccupied.indexOf(cell) === 0) {
+            arr.push([x - 1, y]);
+            arr.push([x - 1, y - 1]);
+            arr.push([x - 1, y + 1]);
+          } else if (cellsOccupied.indexOf(cell) === (cellsOccupied.length - 1)) {
+            arr.push([x + 1, y]);
+            arr.push([x + 1, y - 1]);
+            arr.push([x + 1, y + 1]);
+          }
+        }
+      }
+
+      return arr;
+    }
+
+    const filteredAdjacentCells = adjacentCells().filter((cell) => {
+      return (
+        ( (cell[0] >= 0) && (cell[0] < this.#size) )
+        && ( (cell[1] >= 0) && (cell[1] < this.#size) )
+      );
+    })
+
+    for (let cell of filteredAdjacentCells) {
+      const [x,y] = cell;
+      if (this.board[x][y]) return true;
+    }
+
+    return false;
   }
 
   receiveAttack(target) {
@@ -63,115 +158,18 @@ export default class Gameboard {
     for (let ship of ships) {
       let foundValidPlacement = false;
       const availableCells = this.emptyCells.slice();
+      
       while (!foundValidPlacement) {
         const randomIndex = Math.floor(Math.random() * availableCells.length);
         const randomCell = availableCells[randomIndex];
         const direction = (Math.floor(Math.random() * 2) === 0) ? 'horizontal' : 'vertical';
-        foundValidPlacement = this.#isValidPlacement(ship, randomCell, direction);
 
-        if (foundValidPlacement) {
-          this.placeShip(ship, direction, randomCell);
-        } else {
+        if (this.placeShip(ship, direction, randomCell) === 'fail') {
           availableCells.splice(randomIndex, 1);
+        } else {
+          foundValidPlacement = true;
         }
       }
     }
-  }
-
-  #isValidPlacement(ship, target, direction) {
-    const cellsOccupied = [];
-
-    for (let i = 0; i < ship.length; i++) {
-      const [x,y] = target;
-
-      if (direction === 'horizontal') {
-        cellsOccupied.push( [x, (y + i)] );
-      } else if (direction === 'vertical') {
-        cellsOccupied.push( [(x + i), y] );
-      }
-    }
-
-    const isOutOfBoard = cellsOccupied.some((cell) => {
-      if (
-        cell[0] < 0
-        || cell[0] > (this.#size - 1)
-        || cell[1] < 0
-        || cell[1] > (this.#size - 1)
-      ) {
-        return true;
-      }
-    })
-
-    if (isOutOfBoard) return false;
-
-    const isValid = () => {
-      if (direction === 'horizontal') {
-        for (let i = 0; i < cellsOccupied.length; i++) {
-          const [x,y] = cellsOccupied[i];
-
-          if (i === 0) {
-            if (
-              this.board[x - 1][y - 1]
-              || this.board[x][y - 1]
-              || this.board[x + 1][y - 1]
-            ) {
-              return false;
-            }
-          } else if (i === (cellsOccupied.length - 1)) {
-            if (
-              this.board[x - 1][y + 1]
-              || this.board[x][y + 1]
-              || this.board[x + 1][y + 1]
-            ) {
-              return false;
-            }
-          }
-          
-          if (
-            this.board[x][y]
-            || this.board[x - 1][y]
-            || this.board[x + 1][y]
-          ) {
-            return false;
-          }
-        }
-
-        return true;
-      } else if (direction === 'vertical') {
-        for (let i = 0; i < cellsOccupied.length; i++) {
-          const [x,y] = cellsOccupied[i];
-
-          if (i === 0) {
-            if (
-              this.board[x - 1][y - 1]
-              || this.board[x - 1][y]
-              || this.board[x - 1][y + 1]
-            ) {
-              return false;
-            }
-          } else if (i === (cellsOccupied.length - 1)) {
-            if (
-              this.board[x + 1][y - 1]
-              || this.board[x + 1][y]
-              || this.board[x + 1][y + 1]
-            ) {
-              return false;
-            }
-          }
-          
-          if (
-            this.board[x][y]
-            || this.board[x][y - 1]
-            || this.board[x][y + 1]
-          ) {
-            return false;
-          }
-        }
-        
-        return true;
-      }
-    }
-
-    return isValid;
   }
 }

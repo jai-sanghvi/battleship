@@ -33,6 +33,29 @@ describe('placeShip()', () => {
     expect(gameboard.board[1][1] instanceof Ship).toBe(true);
     expect(gameboard.board[2][1] instanceof Ship).toBe(true);
   })
+
+  test('returns "fail" if ship\'s area goes out of the board', () => {
+    expect(gameboard.placeShip(new Ship(2), 'vertical', [9,0])).toBe('fail');
+  })
+
+  test('returns "fail" if ship\'s area goes out of the board', () => {
+    expect(gameboard.placeShip(new Ship(2), 'horizontal', [9,9])).toBe('fail');
+  })
+
+  test('returns "fail" if ship\'s area overlaps another ship', () => {
+    const ship = new Ship(2);
+    gameboard.placeShip(ship, 'horizontal', [0,0]);
+
+    expect(gameboard.placeShip(ship, 'vertical', [0,1])).toBe('fail');
+    expect(gameboard.placeShip(ship, 'horizontal', [0,0])).toBe('fail');
+  })
+
+  test('returns "fail" if ship is within one square of another ship', () => {
+    const ship = new Ship(2);
+    gameboard.placeShip(ship, 'vertical', [4,4]);
+
+    expect(gameboard.placeShip(ship, 'vertical', [4,3])).toBe('fail');
+  })
 })
 
 describe('receiveAttack()', () => {
