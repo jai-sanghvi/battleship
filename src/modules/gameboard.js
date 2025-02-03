@@ -131,6 +131,7 @@ export default class Gameboard {
 
     if (this.board[x][y] && typeof this.board[x][y].hit === 'function') {
       this.board[x][y].hit();
+      this.board[x][y] = 'hit';
     } else {
       this.board[x][y] = 'miss';
     }
@@ -144,7 +145,7 @@ export default class Gameboard {
     const emptyCells = [];
 
     for (let i = 0; i < this.#size; i++) {
-      for (let j = 0; j < this.board[i].length; j++) {
+      for (let j = 0; j < this.#size; j++) {
         if (this.board[i][j] === undefined) {
           emptyCells.push([i,j]);
         }
@@ -154,7 +155,26 @@ export default class Gameboard {
     return emptyCells;
   }
 
+  get validAttackTargets() {
+    const validTargets = [];
+
+    for (let i = 0; i < this.#size; i++) {
+      for (let j = 0; j < this.#size; j++) {
+        if ((this.board[i][j] !== 'hit') && (this.board[i][j] !== 'miss')) {
+          validTargets.push([i,j]);
+        }
+      }
+    }
+
+    return validTargets;
+  }
+
   placeShipsRandomly(ships) {
+    for (let i = 0; i < this.#size; i++) {
+      for (let j = 0; j < this.#size; j++) {
+        this.board[i][j] = undefined;
+      }
+    }
     for (let ship of ships) {
       let foundValidPlacement = false;
       const availableCells = this.emptyCells.slice();

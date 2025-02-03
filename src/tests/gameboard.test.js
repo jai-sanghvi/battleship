@@ -64,8 +64,8 @@ describe('receiveAttack()', () => {
 
     gameboard.placeShip(ship, 'horizontal', [1,5]);
     gameboard.receiveAttack([1,5]);
-    expect(gameboard.board[1][5] instanceof Ship).toBe(true);
-    expect(gameboard.board[1][5].hits).toBe(1);
+    expect(gameboard.board[1][5]).toBe('hit');
+    expect(ship.hits).toBe(1);
   })
 
   test('records missed shots', () => {
